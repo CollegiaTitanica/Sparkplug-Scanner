@@ -22,6 +22,8 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+console.log("Image size (bytes):", imageData.length);
+
 // endpoint for your app to call
 app.post("/analyze-sparkplug", upload.single("photo"), async (req, res) => {
   try {
