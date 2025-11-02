@@ -11,8 +11,7 @@ const app = express();
 app.use(cors());
 
 
-console.log("PORT:", process.env.PORT);
-console.log("OPENAI_API_KEY set?", !!process.env.OPENAI_API_KEY);
+
 
 // store uploaded files in "uploads/" temporarily
 const upload = multer({ dest: "uploads/" });
@@ -22,8 +21,8 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-console.log("Image size (bytes):", imageData.length);
-
+console.log("PORT:", process.env.PORT);
+console.log("OPENAI_API_KEY set?", !!process.env.OPENAI_API_KEY);
 // endpoint for your app to call
 app.post("/analyze-sparkplug", upload.single("photo"), async (req, res) => {
   try {
@@ -32,21 +31,24 @@ app.post("/analyze-sparkplug", upload.single("photo"), async (req, res) => {
     // Read the file so we can send it to OpenAI as base64
     const imageData = fs.readFileSync(imagePath, { encoding: "base64" });
 
-    // Send image + instruction to OpenAI Vision model
-    const result = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      {
-        role: "system",
-        content: "You are an automotive expert. Analyze the spark plug image and provide a short diagnosis."
-      },
-      {
-        role: "user",
-        content: `Analyze this spark plug image: data:image/jpeg;base64,${imageData}`
-      }
-    ]
-  });
+    // ✅ Log image size here, after it's defined
+    console.log("Image size (bytes):", imageData.length);
 
+    // Send image + instruction to OpenAI
+    const result = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are an automotive expert. Analyze the spark plug image and provide a short, clear diagnosis of its condition and what it might mean for engine health.",
+        },
+        {
+          role: "user",
+          content: `Analyze this spark plug image: data:image/jpeg;base64,${imageData}`,
+        },
+      ],
+    });
 
     // remove the uploaded file to keep the folder clean
     fs.unlinkSync(imagePath);
