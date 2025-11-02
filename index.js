@@ -16,30 +16,25 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 app.post("/analyze-sparkplug", upload.single("photo"), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
     const imageData = req.file.buffer.toString("base64");
     console.log("Received image, size (bytes):", req.file.size);
 
-    // GPT-4o-mini vision call (simplified as text input)
-    const result = await openai.chat.completions.create({
+    const result = await openai.responses.create({
       model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are an automotive expert. Analyze the car's spark plug image and provide a short, clear diagnosis."
-        },
+      input: [
         {
           role: "user",
-          content: `Analyze this spark plug image: data:image/jpeg;base64,${imageData}`
+          content: [
+            { type: "text", text: "Analyze this spark plug image" },
+            { type: "image", image_url: `data:image/jpeg;base64,${imageData}` }
+          ]
         }
       ]
     });
 
-    res.json({ text: result.choices[0].message.content });
+    res.json({ text: result.output_text });
   } catch (err) {
     console.error("Error analyzing spark plug:", err);
     res.status(500).json({ error: "Something went wrong" });
