@@ -36,12 +36,13 @@ app.post("/analyze-sparkplug", upload.single("photo"), async (req, res) => {
         {
           role: "user",
           content: [
-            { type: "text", text: "Analyze this spark plug image" },
-            { type: "image", image_url: `data:image/jpeg;base64,${imageData}` }
+            { type: "input_text", text: "Analyze this spark plug image" },
+            { type: "input_image", image_url: `data:image/jpeg;base64,${imageData}` }
           ]
         }
       ]
     });
+
 
     console.log("OpenAI result received");
     res.json({ text: result.output_text });
