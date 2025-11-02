@@ -46,6 +46,7 @@ app.post("/analyze-sparkplug", upload.single("photo"), async (req, res) => {
 
     console.log("OpenAI result received");
     res.json({ text: result.output_text });
+    console.log(result.output_text)
   } catch (err) {
     console.error("Error analyzing spark plug:", err);
     res.status(500).json({ error: err.message });
