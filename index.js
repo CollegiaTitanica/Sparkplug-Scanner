@@ -11,7 +11,7 @@ app.use(cors());
 
 const upload = multer({ storage: multer.memoryStorage() });
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
+console.log("OPENAI_API_KEY", process.env.OPENAI_API_KEY)
 // Endpoint for analyzing spark plug
 app.post("/analyze-sparkplug", upload.single("photo"), async (req, res) => {
   try {
