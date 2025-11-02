@@ -32,25 +32,19 @@ app.post("/analyze-sparkplug", upload.single("photo"), async (req, res) => {
 
     // Send image + instruction to OpenAI Vision model
     const result = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // supports vision
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are an automotive expert. Analyze the car's spark plug image and provide a short, clear diagnosis of its condition and what it might mean for engine health.",
-        },
-        {
-          role: "user",
-          content: [
-            { type: "text", text: "Here’s the spark plug image:" },
-            {
-              type: "image_url",
-              image_url: `data:image/jpeg;base64,${imageData}`,
-            },
-          ],
-        },
-      ],
-    });
+    model: "gpt-4o-mini",
+    messages: [
+      {
+        role: "system",
+        content: "You are an automotive expert. Analyze the spark plug image and provide a short diagnosis."
+      },
+      {
+        role: "user",
+        content: `Analyze this spark plug image: data:image/jpeg;base64,${imageData}`
+      }
+    ]
+  });
+
 
     // remove the uploaded file to keep the folder clean
     fs.unlinkSync(imagePath);
