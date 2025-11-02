@@ -1,21 +1,15 @@
-# Use an official Node.js runtime as a parent image
-FROM node:22
+# Dockerfile
+FROM node:22-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files first (for caching)
 COPY package*.json ./
+RUN npm install --production
 
-# Install dependencies
-RUN npm install --omit=dev
-
-# Copy the rest of your app
 COPY . .
 
-# Railway automatically sets PORT, but default to 8080
-ENV PORT=8080
-EXPOSE 8080
+ENV PORT=${PORT}
 
-# Start your app
+EXPOSE $PORT
+
 CMD ["node", "index.js"]
