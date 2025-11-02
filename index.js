@@ -45,12 +45,11 @@ app.post("/analyze-sparkplug", upload.single("photo"), async (req, res) => {
 });
 
 
-const PORT = process.env.PORT;
-if (!PORT) {
-  console.error('❌ PORT not set! Railway did not provide a port.');
-  process.exit(1);
-}
-app.listen(PORT, '0.0.0.0', () => console.log(`✅ Listening on port ${PORT}`));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`✅ Backend running on port ${PORT}`);
+});
+
 
 app.get('/', (req, res) => res.send('Backend alive'));
 
