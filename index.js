@@ -10,6 +10,10 @@ dotenv.config();
 const app = express();
 app.use(cors());
 
+
+console.log("PORT:", process.env.PORT);
+console.log("OPENAI_API_KEY set?", !!process.env.OPENAI_API_KEY);
+
 // store uploaded files in "uploads/" temporarily
 const upload = multer({ dest: "uploads/" });
 
