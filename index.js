@@ -61,3 +61,5 @@ if (!PORT) {
 app.listen(PORT, "0.0.0.0", () =>
   console.log(`✅ Backend running on port ${PORT}`)
 );
+
+console.log("OpenAI key loaded?", !!process.env.OPENAI_API_KEY);
