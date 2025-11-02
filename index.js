@@ -1,57 +1,43 @@
 import cors from "cors";
 import express from "express";
-import fs from "fs";
 import multer from "multer";
 import OpenAI from "openai";
-
 import dotenv from "dotenv";
+
 dotenv.config();
 
 const app = express();
 app.use(cors());
 
+// Use memory storage so no file writes needed
+const upload = multer({ storage: multer.memoryStorage() });
 
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-
-// store uploaded files in "uploads/" temporarily
-const upload = multer({ dest: "uploads/" });
-
-// initialize OpenAI client (make sure you have an .env file with your API key)
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-console.log("PORT:", process.env.PORT);
-console.log("OPENAI_API_KEY set?", !!process.env.OPENAI_API_KEY);
-// endpoint for your app to call
 app.post("/analyze-sparkplug", upload.single("photo"), async (req, res) => {
   try {
-    const imagePath = req.file.path;
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
 
-    // Read the file so we can send it to OpenAI as base64
-    const imageData = fs.readFileSync(imagePath, { encoding: "base64" });
+    const imageData = req.file.buffer.toString("base64");
+    console.log("Received image, size (bytes):", req.file.size);
 
-    // ✅ Log image size here, after it's defined
-    console.log("Image size (bytes):", imageData.length);
-
-    // Send image + instruction to OpenAI
+    // GPT-4o-mini vision call (simplified as text input)
     const result = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
           content:
-            "You are an automotive expert. Analyze the spark plug image and provide a short, clear diagnosis of its condition and what it might mean for engine health.",
+            "You are an automotive expert. Analyze the car's spark plug image and provide a short, clear diagnosis."
         },
         {
           role: "user",
-          content: `Analyze this spark plug image: data:image/jpeg;base64,${imageData}`,
-        },
-      ],
+          content: `Analyze this spark plug image: data:image/jpeg;base64,${imageData}`
+        }
+      ]
     });
-
-    // remove the uploaded file to keep the folder clean
-    fs.unlinkSync(imagePath);
 
     res.json({ text: result.choices[0].message.content });
   } catch (err) {
@@ -60,6 +46,5 @@ app.post("/analyze-sparkplug", upload.single("photo"), async (req, res) => {
   }
 });
 
-// start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`✅ Backend running on port ${PORT}`));
