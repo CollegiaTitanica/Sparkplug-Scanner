@@ -9,9 +9,16 @@ dotenv.config();
 const app = express();
 app.use(cors());
 
+// Memory storage for file uploads
 const upload = multer({ storage: multer.memoryStorage() });
+
+// Make sure OPENAI_API_KEY is set
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-// Endpoint for analyzing spark plug
+
+// Test route
+app.get("/", (req, res) => res.send("Backend alive"));
+
+// Main endpoint
 app.post("/analyze-sparkplug", upload.single("photo"), async (req, res) => {
   console.log("Request received");
   console.log("File:", req.file?.originalname, req.file?.size);
@@ -36,7 +43,7 @@ app.post("/analyze-sparkplug", upload.single("photo"), async (req, res) => {
       ]
     });
 
-    console.log("OpenAI result:", result);
+    console.log("OpenAI result received");
     res.json({ text: result.output_text });
   } catch (err) {
     console.error("Error analyzing spark plug:", err);
@@ -44,16 +51,13 @@ app.post("/analyze-sparkplug", upload.single("photo"), async (req, res) => {
   }
 });
 
-
+// ✅ Critical: use only the port Railway provides
 const PORT = process.env.PORT;
 if (!PORT) {
-  console.error("Error: process.env.PORT is not defined!");
+  console.error("Error: process.env.PORT not defined! Exiting...");
   process.exit(1);
 }
 
-app.listen(PORT, '0.0.0.0', () => console.log(`✅ Backend running on port ${PORT}`));
-
-
-
-app.get('/', (req, res) => res.send('Backend alive'));
-
+app.listen(PORT, "0.0.0.0", () =>
+  console.log(`✅ Backend running on port ${PORT}`)
+);
